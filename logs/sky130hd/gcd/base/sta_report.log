@@ -1,0 +1,129 @@
+OpenROAD 26Q2-1846-g49bd051a10 
+Features included (+) or not (-): +GPU +GUI +Python
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[WARNING ORD-0012] Hierarchical flow (-hier) is currently in development and may cause multiple issues. Do not use in production environments.
+═══════════════════════════════════════════════════════
+  SETUP TIMING (worst paths)
+═══════════════════════════════════════════════════════
+[WARNING STA-0168] unknown field nets.
+Startpoint: dpath.b_reg.out[5]$_DFFE_PP_
+            (rising edge-triggered flip-flop clocked by core_clock)
+Endpoint: resp_msg[15] (output port clocked by core_clock)
+Path Group: core_clock
+Path Type: max
+
+      Cap      Slew     Delay      Time   Description
+-------------------------------------------------------------------------------
+                       0.0000    0.0000   clock core_clock (rise edge)
+                       0.2992    0.2992   clock network delay (propagated)
+             0.0847    0.0000    0.2992 ^ dpath.b_reg.out[5]$_DFFE_PP_/CLK (sky130_fd_sc_hd__edfxtp_1)
+   0.0138    0.1228    0.4457    0.7449 v dpath.b_reg.out[5]$_DFFE_PP_/Q (sky130_fd_sc_hd__edfxtp_1)
+             0.1228    0.0003    0.7452 v _119_/_136_/A (sky130_fd_sc_hd__xor2_2)
+   0.0250    0.3262    0.3434    1.0886 ^ _119_/_136_/X (sky130_fd_sc_hd__xor2_2)
+             0.3262    0.0011    1.0897 ^ _119_/_140_/B (sky130_fd_sc_hd__xnor2_4)
+   0.0385    0.3218    0.2220    1.3117 ^ _119_/_140_/Y (sky130_fd_sc_hd__xnor2_4)
+             0.3218    0.0011    1.3128 ^ _119_/rebuffer231/A (sky130_fd_sc_hd__buf_6)
+   0.0069    0.0339    0.1486    1.4614 ^ _119_/rebuffer231/X (sky130_fd_sc_hd__buf_6)
+             0.0339    0.0002    1.4616 ^ _119_/place170/A (sky130_fd_sc_hd__buf_6)
+   0.0217    0.0535    0.1039    1.5656 ^ _119_/place170/X (sky130_fd_sc_hd__buf_6)
+             0.0536    0.0006    1.5661 ^ _119_/_224_/B (sky130_fd_sc_hd__nor2_4)
+   0.0058    0.0638    0.0319    1.5981 v _119_/_224_/Y (sky130_fd_sc_hd__nor2_4)
+             0.0638    0.0001    1.5982 v _119_/_228_/A2 (sky130_fd_sc_hd__a221oi_2)
+   0.0093    0.2694    0.3319    1.9301 ^ _119_/_228_/Y (sky130_fd_sc_hd__a221oi_2)
+             0.2694    0.0002    1.9303 ^ _119_/rebuffer229/A (sky130_fd_sc_hd__buf_4)
+   0.0233    0.0762    0.2032    2.1335 ^ _119_/rebuffer229/X (sky130_fd_sc_hd__buf_4)
+             0.0762    0.0008    2.1343 ^ _119_/_130_/A2 (sky130_fd_sc_hd__o311ai_4)
+   0.0052    0.1055    0.0969    2.2311 v _119_/_130_/Y (sky130_fd_sc_hd__o311ai_4)
+             0.1055    0.0001    2.2313 v _119_/_131_/A (sky130_fd_sc_hd__xnor2_1)
+   0.0070    0.1965    0.2322    2.4635 ^ _119_/_131_/Y (sky130_fd_sc_hd__xnor2_1)
+             0.1965    0.0001    2.4636 ^ output45/A (sky130_fd_sc_hd__dlymetal6s2s_1)
+   0.0011    0.0437    0.1255    2.5891 ^ output45/X (sky130_fd_sc_hd__dlymetal6s2s_1)
+             0.0437    0.0000    2.5891 ^ resp_msg[15] (out)
+                                 2.5891   data arrival time
+
+                       1.1000    1.1000   clock core_clock (rise edge)
+                       0.0000    1.1000   clock network delay (propagated)
+                       0.0000    1.1000   clock reconvergence pessimism
+                      -0.2200    0.8800   output external delay
+                                 0.8800   data required time
+-------------------------------------------------------------------------------
+                                 0.8800   data required time
+                                -2.5891   data arrival time
+-------------------------------------------------------------------------------
+                                -1.7091   slack (VIOLATED)
+
+
+
+═══════════════════════════════════════════════════════
+  HOLD TIMING (worst paths)
+═══════════════════════════════════════════════════════
+[WARNING STA-0168] unknown field nets.
+Startpoint: req_msg[30] (input port clocked by core_clock)
+Endpoint: dpath.a_reg.out[14]$_DFFE_PP_
+          (rising edge-triggered flip-flop clocked by core_clock)
+Path Group: core_clock
+Path Type: min
+
+      Cap      Slew     Delay      Time   Description
+-------------------------------------------------------------------------------
+                       0.0000    0.0000   clock core_clock (rise edge)
+                       0.0000    0.0000   clock network delay (propagated)
+                       0.2200    0.2200 v input external delay
+   0.0039    0.0000    0.0000    0.2200 v req_msg[30] (in)
+             0.0001    0.0000    0.2200 v input26/A (sky130_fd_sc_hd__clkdlybuf4s50_1)
+   0.0036    0.0544    0.4035    0.6235 v input26/X (sky130_fd_sc_hd__clkdlybuf4s50_1)
+             0.0544    0.0001    0.6236 v _170_/A (sky130_fd_sc_hd__nand2_1)
+   0.0028    0.0382    0.0577    0.6813 ^ _170_/Y (sky130_fd_sc_hd__nand2_1)
+             0.0382    0.0001    0.6814 ^ _171_/B1 (sky130_fd_sc_hd__o21ai_1)
+   0.0023    0.0363    0.0498    0.7312 v _171_/Y (sky130_fd_sc_hd__o21ai_1)
+             0.0363    0.0000    0.7312 v dpath.a_reg.out[14]$_DFFE_PP_/D (sky130_fd_sc_hd__edfxtp_1)
+                                 0.7312   data arrival time
+
+                       0.0000    0.0000   clock core_clock (rise edge)
+                       0.2971    0.2971   clock network delay (propagated)
+                       0.0000    0.2971   clock reconvergence pessimism
+                                 0.2971 ^ dpath.a_reg.out[14]$_DFFE_PP_/CLK (sky130_fd_sc_hd__edfxtp_1)
+                      -0.1609    0.1362   library hold time
+                                 0.1362   data required time
+-------------------------------------------------------------------------------
+                                 0.1362   data required time
+                                -0.7312   data arrival time
+-------------------------------------------------------------------------------
+                                 0.5951   slack (MET)
+
+
+
+═══════════════════════════════════════════════════════
+  TIMING SUMMARY
+═══════════════════════════════════════════════════════
+tns max -75.23
+wns max -1.71
+worst slack max -1.71
+worst slack min 0.60
+
+═══════════════════════════════════════════════════════
+  CLOCK SUMMARY
+═══════════════════════════════════════════════════════
+Clock core_clock
+   0.30 source latency dpath.a_reg.out[7]$_DFFE_PP_/CLK ^
+  -0.29 target latency dpath.b_reg.out[15]$_DFFE_PP_/CLK ^
+   0.00 CRPR
+--------------
+   0.01 setup skew
+
+
+═══════════════════════════════════════════════════════
+  DESIGN STATISTICS
+═══════════════════════════════════════════════════════
+Design area 4891 um^2 88% utilization.
+Cell type report:                       Count       Area
+  Fill cell                               247     649.37
+  Tap cell                                 72      90.09
+  Clock buffer                              6      82.58
+  Timing Repair Buffer                    168    1517.71
+  Inverter                                  5      18.77
+  Clock inverter                            2      35.03
+  Sequential cell                          35    1025.98
+  Multi-Input combinational cell          226    2120.78
+  Total                                   761    5540.31

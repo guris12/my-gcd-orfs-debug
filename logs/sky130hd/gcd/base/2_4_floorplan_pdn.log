@@ -1,0 +1,16 @@
+OpenROAD 26Q2-1846-g49bd051a10 
+Features included (+) or not (-): +GPU +GUI +Python
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO ORD-0030] Using 8 thread(s).
+read_liberty /OpenROAD-flow-scripts/flow/platforms/sky130hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_db -hier ./results/sky130hd/gcd/base/2_3_floorplan_tapcell.odb
+[WARNING ORD-0012] Hierarchical flow (-hier) is currently in development and may cause multiple issues. Do not use in production environments.
+read_sdc ./results/sky130hd/gcd/base/2_1_floorplan.sdc
+source /OpenROAD-flow-scripts/flow/platforms/sky130hd/setRC.tcl
+[INFO PDN-0001] Inserting grid: grid
+Design area 2840 um^2 51% utilization.
+write_db ./results/sky130hd/gcd/base/2_4_floorplan_pdn.odb
+Elapsed time: 0:00.70[h:]min:sec. CPU time: user 0.65 sys 0.04 (97%). Peak memory: 148848KB.
+Log                       Ext     Elapsed/s Peak Memory/MB sha1sum result [0:20)
+2_4_floorplan_pdn         .odb            0            145 f4f44a1f35f6cbc346c6
