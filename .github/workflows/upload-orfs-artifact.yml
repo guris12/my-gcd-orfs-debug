@@ -1,0 +1,25 @@
+name: Upload ORFS artifacts for CI debug
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract ORFS tarball
+        run: tar -xzf artifacts/orfs-flow-outputs.tar.gz
+
+      - name: Upload for dashboard
+        uses: actions/upload-artifact@v4
+        with:
+          name: orfs-flow-outputs
+          path: |
+            logs
+            reports
+            results
+          retention-days: 14
