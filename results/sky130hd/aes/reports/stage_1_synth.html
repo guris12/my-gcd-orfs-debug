@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stage 1 — Synthesis | aes</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0E1A;
+  --surface-1: #111827;
+  --surface-2: #1F2937;
+  --surface-3: #2D3748;
+  --border: rgba(59,130,246,0.15);
+  --border2: rgba(59,130,246,0.25);
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+  --teal: #14B8A6;
+  --blue: #3B82F6;
+  --purple: #8B5CF6;
+  --green: #10B981;
+  --amber: #F59E0B;
+  --red: #EF4444;
+  --cyan: #06B6D4;
+  --pink: #EC4899;
+  --font-mono: 'IBM Plex Mono', 'SF Mono', 'Fira Code', monospace;
+  --font-sans: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
+  --radius: 12px;
+  --stage-color: #8B5CF6;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--surface-1); }
+::-webkit-scrollbar-thumb { background: var(--teal); border-radius: 4px; }
+
+.container { max-width: 1000px; margin: 0 auto; padding: 32px 24px; }
+
+/* Header */
+.header {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  margin-bottom: 20px;
+  border-top: 3px solid var(--stage-color);
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle at top right, rgba(20,184,166,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+.header-left { display: flex; align-items: center; gap: 16px; }
+.stage-emoji { font-size: 36px; }
+.stage-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.stage-meta {
+  display: flex; gap: 16px; align-items: center; margin-top: 8px;
+  font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);
+}
+.stage-meta span { display: flex; align-items: center; gap: 4px; }
+.elapsed {
+  background: rgba(20,184,166,0.12); border: 1px solid rgba(20,184,166,0.25);
+  color: var(--teal); padding: 2px 8px; border-radius: 10px;
+  font-size: 11px; font-weight: 500;
+}
+.status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; font-family: var(--font-mono);
+  background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25); color: #F59E0B;
+}
+
+/* Pipeline */
+.pipeline-section {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 24px; margin-bottom: 20px;
+}
+.pipeline-row {
+  display: flex; align-items: center; gap: 0; overflow-x: auto;
+  padding: 12px 0; justify-content: center;
+}
+.pip-node { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 60px; }
+.pip-circle {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; border: 2px solid var(--border);
+  background: var(--surface-2); transition: all 0.3s;
+}
+.pip-node.done .pip-circle { border-color: var(--green); background: rgba(16,185,129,0.1); box-shadow: 0 0 8px rgba(16,185,129,0.2); }
+.pip-node.current .pip-circle { border-color: var(--stage-color); background: rgba(20,184,166,0.1); box-shadow: 0 0 12px color-mix(in srgb, var(--stage-color) 30%, transparent); animation: pulse 2s infinite; }
+.pip-node.pending .pip-circle { opacity: 0.4; }
+.pip-label { font-size: 9px; color: var(--text-muted); text-align: center; max-width: 60px; }
+.pip-node.current .pip-label { color: var(--text-primary); font-weight: 500; }
+.pip-arrow { color: var(--text-muted); font-size: 16px; margin: 0 4px; padding-bottom: 20px; opacity: 0.4; }
+.pip-arrow.done { color: var(--green); opacity: 1; }
+.pip-arrow.current { color: var(--stage-color); opacity: 1; }
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--stage-color) 40%, transparent); }
+  70% { box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+/* Section cards */
+.section-card {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin-bottom: 20px;
+}
+.section-title {
+  font-size: 14px; font-weight: 600; color: var(--text-primary);
+  margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+}
+.section-title::before {
+  content: ''; width: 3px; height: 16px; border-radius: 2px;
+  background: var(--teal);
+}
+
+/* What this stage did */
+.explain-box {
+  background: var(--surface-2); border-radius: 10px; padding: 16px;
+  border-left: 3px solid var(--stage-color);
+}
+.explain-title { font-size: 11px; font-weight: 600; color: var(--stage-color); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.explain-text { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+.output-note { margin-top: 12px; font-size: 12px; color: var(--text-muted); }
+.output-note strong { color: var(--cyan); }
+
+/* Metrics grid */
+.metrics-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px;
+}
+.metric-card {
+  background: var(--surface-2); border-radius: 10px; padding: 16px;
+  border-left: 3px solid var(--teal); transition: transform 0.2s, box-shadow 0.2s;
+}
+.metric-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.mc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.mc-name { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.mc-icon { font-size: 14px; }
+.mc-value { font-size: 22px; font-weight: 700; font-family: var(--font-mono); }
+.mc-unit { font-size: 12px; font-weight: 400; color: var(--text-muted); margin-left: 4px; }
+.mc-explain { font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin-top: 8px; }
+
+/* Screenshot */
+.screenshot-section { margin-bottom: 20px; }
+.screenshot-frame {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px; overflow: hidden;
+}
+.screenshot-frame img {
+  width: 100%; height: auto; border-radius: 4px;
+  image-rendering: pixelated;
+}
+
+/* Log viewer */
+.log-viewer {
+  background: #0D1117; border-radius: 10px; padding: 16px;
+  font-family: var(--font-mono); font-size: 11px; line-height: 1.8;
+  overflow-x: auto; max-height: 400px; overflow-y: auto;
+  border: 1px solid var(--border);
+}
+.line-ok { border-left: 3px solid var(--green); padding-left: 12px; color: #a5d6a7; }
+.line-err { border-left: 3px solid var(--red); padding-left: 12px; color: #ef9a9a; background: rgba(239,68,68,0.05); }
+.line-warn { border-left: 3px solid var(--amber); padding-left: 12px; color: #ffe082; }
+.line-normal { border-left: 3px solid transparent; padding-left: 12px; color: var(--text-secondary); }
+
+/* Next steps */
+.next-steps {
+  background: var(--surface-2); border-radius: 10px; padding: 16px;
+}
+.next-item {
+  font-size: 13px; color: var(--text-secondary); padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.next-item:last-child { border-bottom: none; }
+.next-item code {
+  background: rgba(6,182,212,0.12); color: var(--cyan); padding: 2px 6px;
+  border-radius: 4px; font-family: var(--font-mono); font-size: 11px;
+}
+
+/* AI button */
+.ai-section { margin-top: 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ai-btn {
+  background: var(--teal); color: #000; border: none; border-radius: 8px;
+  padding: 10px 20px; font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: var(--font-sans); transition: all 0.2s;
+}
+.ai-btn:hover { background: #0d9488; transform: translateY(-1px); }
+.ai-hint { font-size: 11px; color: var(--text-muted); }
+
+/* Footer */
+.footer {
+  text-align: center; padding: 20px; font-size: 11px; color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+.footer a { color: var(--teal); text-decoration: none; }
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.section-card { animation: fadeUp 0.4s ease both; }
+.section-card:nth-child(2) { animation-delay: 0.1s; }
+.section-card:nth-child(3) { animation-delay: 0.2s; }
+.section-card:nth-child(4) { animation-delay: 0.3s; }
+.section-card:nth-child(5) { animation-delay: 0.4s; }
+
+@media (max-width: 600px) {
+  .container { padding: 16px 12px; }
+  .header { padding: 20px; }
+  .metrics-grid { grid-template-columns: 1fr; }
+  .pipeline-row { justify-content: flex-start; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div class="header-left">
+        <div class="stage-emoji">⚡</div>
+        <div>
+          <div class="stage-title">Stage 1 — Synthesis</div>
+          <div class="stage-meta">
+            <span>Design: <strong style="color:var(--cyan)">aes</strong></span>
+            <span>PDK: sky130hd</span>
+            
+            <span>2026-06-03 09:08</span>
+            <span class="elapsed">2m 31s</span>
+          </div>
+        </div>
+      </div>
+      <div class="status-badge">⚠ WARNINGS</div>
+    </div>
+  </div>
+
+  <!-- Pipeline progress -->
+  <div class="pipeline-section">
+    <div class="pipeline-row">
+      <div class="pip-node current" data-stage="synth"><div class="pip-circle">⚡</div><div class="pip-label">Synthesis</div></div><div class="pip-arrow current">→</div><div class="pip-node pending" data-stage="floorplan"><div class="pip-circle">📐</div><div class="pip-label">Floorplan</div></div><div class="pip-arrow ">→</div><div class="pip-node pending" data-stage="place"><div class="pip-circle">🧩</div><div class="pip-label">Placement</div></div><div class="pip-arrow ">→</div><div class="pip-node pending" data-stage="cts"><div class="pip-circle">🕐</div><div class="pip-label">Clock Tree Synthesis</div></div><div class="pip-arrow ">→</div><div class="pip-node pending" data-stage="route"><div class="pip-circle">🔌</div><div class="pip-label">Routing</div></div><div class="pip-arrow ">→</div><div class="pip-node pending" data-stage="sta"><div class="pip-circle">⏱</div><div class="pip-label">Static Timing Analysis</div></div><div class="pip-arrow ">→</div><div class="pip-node pending" data-stage="finish"><div class="pip-circle">🏁</div><div class="pip-label">GDSII Finish</div></div>
+    </div>
+  </div>
+
+  <!-- What this stage did -->
+  <div class="section-card">
+    <div class="section-title">What This Stage Did</div>
+    <div class="explain-box">
+      <div class="explain-title">In Plain English</div>
+      <div class="explain-text">Converts your Verilog (behaviour) into a gate-level netlist using real sky130 standard cells. No physical location yet — just logic gates wired together.</div>
+    </div>
+    <div class="output-note"><strong>Output:</strong> A .v netlist file listing every AND, OR, flip-flop and buffer in your design.</div>
+  </div>
+
+  <!-- QOR Metrics -->
+  <div class="section-card">
+    <div class="section-title">Quality of Results (QOR)</div>
+    <div class="metrics-grid">
+      
+        <div class="metric-card" style="border-left-color:#10B981">
+          <div class="mc-header">
+            <span class="mc-name">Unmapped cells</span>
+            <span class="mc-icon" style="color:#10B981">✓</span>
+          </div>
+          <div class="mc-value" style="color:#10B981">0<span class="mc-unit"></span></div>
+          <div class="mc-explain">Cells the mapper couldn't convert to sky130 gates. Must be 0 for a valid netlist.</div>
+        </div>
+        <div class="metric-card" style="border-left-color:#F59E0B">
+          <div class="mc-header">
+            <span class="mc-name">Latch warnings</span>
+            <span class="mc-icon" style="color:#F59E0B">⚠</span>
+          </div>
+          <div class="mc-value" style="color:#F59E0B">4<span class="mc-unit"></span></div>
+          <div class="mc-explain">Latches are usually unintentional (incomplete if/else in RTL). Fix your Verilog.</div>
+        </div>
+    </div>
+  </div>
+
+  
+
+  <!-- Next steps -->
+  <div class="section-card">
+    <div class="section-title">What To Do Next</div>
+    <div class="next-steps">
+      <div class="next-item">→ Run <code>ondevtra run floorplan</code> to define chip physical boundaries.</div><div class="next-item">→ Check cell count — GCD should be 450–1200 cells.</div>
+    </div>
+    <div class="ai-section">
+      <button class="ai-btn" onclick="navigator.clipboard.writeText('ondevtra ask \'My synthesis finished. Explain what cell count and chip area mean?\'').then(()=>this.textContent='Copied!')">
+        Copy AI tutor question
+      </button>
+      <span class="ai-hint">Paste into terminal: <code style="color:var(--cyan);font-family:var(--font-mono);font-size:11px;">ondevtra ask '...'</code></span>
+    </div>
+  </div>
+
+  <!-- Log snippet -->
+  <div class="section-card"><div class="section-title">Raw Log (last 40 lines)</div><div class="log-viewer"><div class="line-ok">18.7. Executing OPT_CLEAN pass (remove unused cells and wires).</div><div class="line-ok">18.8. Executing OPT_EXPR pass (perform const folding).</div><div class="line-ok">18.9. Finished fast OPT passes. (There is nothing left to do.)</div><div class="line-ok">19. Executing SETUNDEF pass (replace undef values with defined constants).</div><div class="line-normal">abc_new -liberty /OpenROAD-flow-scripts/flow/platforms/sky130hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib -dont_use sky130_fd_sc_hd__probe_p_8 -dont_use sky130_fd_sc_hd__probec_p_8 -dont_use sky130_fd_sc_hd__lpflow_bleeder_1 -dont_use sky130_fd_sc_hd__lpflow_clkbufkapwr_1 -dont_use sky130_fd_sc_hd__lpflow_clkbufkapwr_16 -dont_use sky130_fd_sc_hd__lpflow_clkbufkapwr_2 -dont_use sky130_fd_sc_hd__lpflow_clkbufkapwr_4 -dont_use sky130_fd_sc_hd__lpflow_clkbufkapwr_8 -dont_use sky130_fd_sc_hd__lpflow_clkinvkapwr_1 -dont_use sky130_fd_sc_hd__lpflow_clkinvkapwr_16 -dont_use sky130_fd_sc_hd__lpflow_clkinvkapwr_2 -dont_use sky130_fd_sc_hd__lpflow_clkinvkapwr_4 -dont_use sky130_fd_sc_hd__lpflow_clkinvkapwr_8 -dont_use sky130_fd_sc_hd__lpflow_decapkapwr_12 -dont_use sky130_fd_sc_hd__lpflow_decapkapwr_3 -dont_use sky130_fd_sc_hd__lpflow_decapkapwr_4 -dont_use sky130_fd_sc_hd__lpflow_decapkapwr_6 -dont_use sky130_fd_sc_hd__lpflow_decapkapwr_8 -dont_use sky130_fd_sc_hd__lpflow_inputiso0n_1 -dont_use sky130_fd_sc_hd__lpflow_inputiso0p_1 -dont_use sky130_fd_sc_hd__lpflow_inputiso1n_1 -dont_use sky130_fd_sc_hd__lpflow_inputiso1p_1 -dont_use sky130_fd_sc_hd__lpflow_inputisolatch_1 -dont_use sky130_fd_sc_hd__lpflow_isobufsrc_1 -dont_use sky130_fd_sc_hd__lpflow_isobufsrc_16 -dont_use sky130_fd_sc_hd__lpflow_isobufsrc_2 -dont_use sky130_fd_sc_hd__lpflow_isobufsrc_4 -dont_use sky130_fd_sc_hd__lpflow_isobufsrc_8 -dont_use sky130_fd_sc_hd__lpflow_isobufsrckapwr_16 -dont_use sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_1 -dont_use sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_2 -dont_use sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_4 -dont_use sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_4 -dont_use sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_1 -dont_use sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_2 -dont_use sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_4 -constr ./objects/sky130hd/aes/base/abc.constr -D 3.6</div><div class="line-warn">Warning: Feature 'abc_new' is experimental.</div><div class="line-ok">20. Executing ABC_NEW pass.</div><div class="line-ok">20.1. Executing ABC9_OPS pass (helper functions for ABC9).</div><div class="line-ok">20.2. Executing BOX_DERIVE pass. (derive modules for boxes)</div><div class="line-ok">20.3. Executing ABC9_OPS pass (helper functions for ABC9).</div><div class="line-ok">20.4. Executing ABC9_OPS pass (helper functions for ABC9).</div><div class="line-normal">20.5. Mapping module 'aes_cipher_top'.</div><div class="line-ok">20.5.1. Executing ABC9_OPS pass (helper functions for ABC9).</div><div class="line-warn">Warning: Feature 'write_xaiger2' is experimental.</div><div class="line-normal">20.5.2. Executing XAIGER2 backend.</div><div class="line-ok">20.5.3. Executing ABC9_EXE pass (technology mapping using ABC9).</div><div class="line-normal">20.5.4. Executing ABC9.</div><div class="line-warn">Warning: Feature 'read_xaiger2' is experimental.</div><div class="line-normal">20.5.5. Executing XAIGER2 frontend.</div><div class="line-ok">20.6. Executing ABC9_OPS pass (helper functions for ABC9).</div><div class="line-ok">Took 74 seconds: abc_new -liberty /OpenROAD-flow-scripts/flow/platforms/sky130hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib -dont_use sky130_fd_sc_hd__probe_p_8 -dont_use sky130_fd_sc_hd__probec_p_8 -dont_use sky130_fd_sc_hd__lpflow_bleeder_1 -dont_use sky130_fd_sc_hd__lpflow_clkbufkapwr_1 -dont_use sky130_fd_sc_hd__lpflow_clkbufkapwr_16 -dont_use sky130_fd_sc_hd__lpflow_clkbufkapwr_2 -dont_use sky130_fd_sc_hd__lpflow_clkbufkapwr_4 -dont_use sky130_fd_sc_hd__lpflow_clkbufkapwr_8 -dont_use sky130_fd_sc_hd__lpflow_clkinvkapwr_1 -dont_use sky130_fd_sc_hd__lpflow_clkinvkapwr_16 -dont_use sky130_fd_sc_hd__lpflow_clkinvkapwr_2 -dont_use sky130_fd_sc_hd__lpflow_clkinvkapwr_4 -dont_use sky130_fd_sc_hd__lpflow_clkinvkapwr_8 -dont_use sky130_fd_sc_hd__lpflow_decapkapwr_12 -dont_use sky130_fd_sc_hd__lpflow_decapkapwr_3 -dont_use sky130_fd_sc_hd__lpflow_decapkapwr_4 -dont_use sky130_fd_sc_hd__lpflow_decapkapwr_6 -dont_use sky130_fd_sc_hd__lpflow_decapkapwr_8 -dont_use sky130_fd_sc_hd__lpflow_inputiso0n_1 -dont_use sky130_fd_sc_hd__lpflow_inputiso0p_1 -dont_use sky130_fd_sc_hd__lpflow_inputiso1n_1 -dont_use sky130_fd_sc_hd__lpflow_inputiso1p_1 -dont_use sky130_fd_sc_hd__lpflow_inputisolatch_1 -dont_use sky130_fd_sc_hd__lpflow_isobufsrc_1 -dont_use sky130_fd_sc_hd__lpflow_isobufsrc_16 -dont_use sky130_fd_sc_hd__lpflow_isobufsrc_2 -dont_use sky130_fd_sc_hd__lpflow_isobufsrc_4 -dont_use sky130_fd_sc_hd__lpflow_isobufsrc_8 -dont_use sky130_fd_sc_hd__lpflow_isobufsrckapwr_16 -dont_use sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_1 -dont_use sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_2 -dont_use sky130_fd_sc_hd__lpflow_lsbuf_lh_hl_isowell_tap_4 -dont_use sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_4 -dont_use sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_1 -dont_use sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_2 -dont_use sky130_fd_sc_hd__lpflow_lsbuf_lh_isowell_tap_4 -constr ./objects/sky130hd/aes/base/abc.constr -D 3.6</div><div class="line-ok">21. Executing SPLITNETS pass (splitting up multi-bit signals).</div><div class="line-ok">22. Executing OPT_CLEAN pass (remove unused cells and wires).</div><div class="line-ok">23. Executing HILOMAP pass (mapping to constant drivers).</div><div class="line-ok">24. Executing INSBUF pass (insert buffer cells for connected wires).</div><div class="line-ok">25. Executing CHECK pass (checking for obvious problems).</div><div class="line-normal">26. Printing statistics.</div><div class="line-ok">27. Executing CHECK pass (checking for obvious problems).</div><div class="line-normal">28. Executing Verilog backend.</div><div class="line-ok">28.1. Executing BMUXMAP pass.</div><div class="line-ok">28.2. Executing DEMUXMAP pass.</div><div class="line-normal">exec cp /OpenROAD-flow-scripts/flow/designs/sky130hd/aes/constraint.sdc ./results/sky130hd/aes/base/1_synth.sdc</div><div class="line-warn">Warnings: 3 unique messages, 3 total</div><div class="line-warn">Warnings: 3 experimental features used (not excluded with -x).</div><div class="line-normal">End of script. Logfile hash: 5ccced5b15, time: 98.07s, user: 22.35s, system: 1.02s, MEM: 106.94 MB peak</div><div class="line-normal">Yosys 0.64+post (git sha1 UNKNOWN-dirty, g++ 11.4.0-1ubuntu1~22.04.3 -fPIC -O3)</div><div class="line-normal">Time spent: 76% 1x abc9_exe (73 sec), 13% 1x extract_fa (13 sec), ...</div><div class="line-normal">Elapsed time: 1:38.50[h:]min:sec. CPU time: user 96.39 sys 2.10 (99%). Peak memory: 110668KB.</div><div class="line-normal">Log                       Ext     Elapsed/s Peak Memory/MB sha1sum result [0:20)</div><div class="line-normal">1_2_yosys                 .v             98            108 38e15a0fa8e99044c340</div></div></div>
+
+  <div class="footer">
+    Ondevtra PD Lab — RTL-to-GDSII Learning Tool<br>
+    <a href="javascript:void(0)" onclick="navigator.clipboard.writeText('ondevtra pdflowdashboard')">Open full dashboard: ondevtra pdflowdashboard</a>
+  </div>
+
+</div>
+</body>
+</html>
